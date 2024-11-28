@@ -1,0 +1,124 @@
+package com.cg.controller;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.cg.dto.OrderDTO;
+import com.cg.dto.UserDTO;
+import com.cg.exception.ResourceNotFoundException;
+import com.cg.model.Product;
+import com.cg.model.User;
+import com.cg.service.IOrderService;
+import com.cg.service.IProductService;
+import com.cg.service.IUserService;
+
+import jakarta.validation.Valid;
+
+@RequestMapping("/apis")
+@RestController
+public class UserController {
+	@Autowired
+	IUserService userservice;
+	
+	@Autowired
+	IOrderService orderservice;
+	
+	@Autowired
+	IProductService productservice;
+	
+	@GetMapping("/users")
+	public List<User> findAll(){
+		return userservice.findAll();
+	}
+	
+	@GetMapping("/user1")
+	public List<UserDTO> findAllUsers(){
+		return userservice.findAll()
+				          .stream()
+				          .map(UserDTO :: fromEntity)
+				          .collect(Collectors.toList());
+				          
+	}
+	
+	@GetMapping("/users/{id}")
+	public Optional<User> findUserById(@PathVariable int id){
+		return userservice.findUserById(id);
+	}
+	
+	@GetMapping("/users1/{id}")
+    public UserDTO findUser(@PathVariable int id) throws ResourceNotFoundException {
+        return userservice.findUserById(id)
+                            .map(UserDTO::fromEntity)  
+                            .orElseThrow(() -> new ResourceNotFoundException("Product not found for this id :: " + id));
+    }
+	
+	@GetMapping("/orders2/{id}")
+    public List<OrderDTO> getOrderById(@PathVariable int id) {
+        return orderservice.findOrderById(id)
+                            .stream()
+                            .map(OrderDTO::fromEntity)  // Convert to ProductDTO
+                            .collect(Collectors.toList());
+    }
+
+	@GetMapping("/products/{id}")
+	Optional<Product>findByProductIdFromDBWithException(@PathVariable int id) throws ResourceNotFoundException
+	{	Optional<Product> product = productservice.findProductById(id);
+	    //java8 lambda version
+    	product.orElseThrow(() -> new ResourceNotFoundException("Product not found for this id :: " + id));
+    	System.out.println(id);
+    return product;	
+	}
+	
+	@PostMapping("/users")
+	public User createUser1(@Valid @RequestBody User u) {
+		return userservice.createUser(u);
+	}
+	
+	@PostMapping("/user1")
+	public UserDTO createUser(@Valid @RequestBody UserDTO userdto) {
+		User user=userdto.toEntity();
+		User createdUser=userservice.createUser(user);
+		return UserDTO.fromEntity(createdUser);
+	}
+	
+	
+	@DeleteMapping("/users1/{id}")
+	public String deleteUserById(@PathVariable int id) {
+		return userservice.deleteUserById(id);
+	}
+	
+	@DeleteMapping("/delete/{id}")
+	public UserDTO deleteUser(@PathVariable int id){
+		 User user = userservice.findUserById(id)
+                 .orElseThrow(() -> new RuntimeException("User not found"));
+		 UserDTO userDTO = UserDTO.fromEntity(user);
+		 userservice.deleteUserById(id);
+		 return userDTO;
+				      
+	}
+	
+	@PutMapping("/update")
+	public User updateUser(@RequestBody User u) {
+		return userservice.updateUser(u);
+	}
+	
+	@PutMapping("/update1")
+	    public UserDTO updateUser(@RequestBody UserDTO userDTO) {
+	        User user = userDTO.toEntity();
+	        User updatedUser = userservice.updateUser(user);
+	        return UserDTO.fromEntity(updatedUser);
+	    }
+	
+
+}

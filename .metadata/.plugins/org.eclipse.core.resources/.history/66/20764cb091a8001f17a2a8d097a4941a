@@ -1,0 +1,93 @@
+package com.cg.controller;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+
+import com.cg.exception.ResourceNotFoundException;
+import com.cg.model.Product;
+import com.cg.service.IProductService;
+
+@RequestMapping("/api")
+@RestController
+public class ProductController {
+	@Autowired
+	IProductService productService;
+	//@GetMapping(path="/products", produces = {MediaType.APPLICATION_XML_VALUE})
+	@GetMapping("/products")
+	public List<Product> getProducts()
+	{
+		return productService.findAll();
+	}
+	
+	@GetMapping("/products1/{id}")
+     public Optional<Product>findByProductId(@PathVariable int id){
+		return productService.findProductById(id);
+		
+	}
+	
+//	@GetMapping("/products/{id}")
+//    public ProductDTO getProductById(@PathVariable int id) throws ResourceNotFoundException {
+//        return productService.getProductById(id)
+//                            .map(ProductDTO::fromEntity)  
+//                            .orElseThrow(() -> new ResourceNotFoundException("Product not found for this id :: " + id));
+//    }
+	
+	@GetMapping("/products/{id}")
+	Optional<Product>findByProductIdFromDBWithException(@PathVariable int id) throws ResourceNotFoundException
+	{	Optional<Product> product = productService.findProductById(id);
+	    //java8 lambda version
+    	product.orElseThrow(() -> new ResourceNotFoundException("Product not found for this id :: " + id));
+    	System.out.println(id);
+    return product;	
+	}
+	
+	@GetMapping("/products/myProduct")
+	public Optional<Product> getProductbyId(@RequestParam int id){
+		return productService.findProductById(id);
+		
+	}
+	
+	@PostMapping("/products")   //to add product in postman without manually inserting into postgres
+	public Product createMyProduct(@RequestBody Product p) {
+		return productService.CreateProduct(p);
+	}
+	
+	
+	@DeleteMapping("/products/{id}")
+	public String deleteProductbyId(@PathVariable int id) {
+		 String product = productService.DeleteProductbyId(id);
+                  .orElseThrow(() -> new RuntimeException("User not found"));
+	   String r= productService.DeleteProductbyId(id);
+		return r;
+	}
+	
+//	@DeleteMapping("/delete/{id}")
+//	public ProductDTO deleteProduct(@PathVariable int id){
+//		 Product product = productService.DeleteProductbyId(id);
+//                 .orElseThrow(() -> new RuntimeException("User not found"));
+//		 ProductDTO productDTO = ProductDTO.fromEntity(product);
+//		 productService.DeleteProductbyId(id);
+//		 return productDTO;
+//				      
+//	}
+	
+	@PutMapping("/products")
+	public Product UpdateProduct(@RequestBody Product p) {
+		return productService.UpdateData(p);
+	}
+			
+}
+ 
+

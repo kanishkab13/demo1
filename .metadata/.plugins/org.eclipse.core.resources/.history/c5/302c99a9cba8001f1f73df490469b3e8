@@ -1,0 +1,11 @@
+package com.cg.controller;
+
+import org.springframework.cloud.openfeign.FeignClient;
+
+import feign.Headers;
+
+@Headers("Content-Type :application/json")
+@FeignClient(name="prod-ms" ,url="${PRODUCT_SERVICE:http://localhost:9090}")
+public interface OrderFeignClient {
+
+}

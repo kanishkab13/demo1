@@ -1,0 +1,61 @@
+package com.cg.controller;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.cg.dto.OrderDTO;
+import com.cg.dto.UserDTO;
+import com.cg.exception.ResourceNotFoundException;
+import com.cg.model.Product;
+import com.cg.model.User;
+import com.cg.service.IOrderService;
+import com.cg.service.IProductService;
+import com.cg.service.IUserService;
+
+import jakarta.validation.Valid;
+
+@RequestMapping("/apis")
+@RestController
+public class UserController {
+	@Autowired
+	IUserService userservice;
+	
+	@GetMapping("/users")
+	public List<User> findAll(){
+		return userservice.findAll();
+	}
+	
+	
+	@GetMapping("/users/{id}")
+	public Optional<User> findUserById(@PathVariable int id){
+		return userservice.findUserById(id);
+	}
+	
+	
+	@PostMapping("/users")
+	public User createUser1(@Valid @RequestBody User u) {
+		return userservice.createUser(u);
+	}
+	
+	@DeleteMapping("/users1/{id}")
+	public String deleteUserById(@PathVariable int id) {
+		return userservice.deleteUserById(id);
+	}
+	
+	@PutMapping("/update")
+	public User updateUser(@RequestBody User u) {
+		return userservice.updateUser(u);
+	}
+
+}

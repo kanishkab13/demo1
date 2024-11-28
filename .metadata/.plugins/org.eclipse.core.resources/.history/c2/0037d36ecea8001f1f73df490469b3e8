@@ -1,0 +1,8 @@
+package com.cg.service;
+
+public class Snippet {
+	public static void main(String[] args) {
+		2feignclient-ProductService-CRUD
+	}
+}
+
